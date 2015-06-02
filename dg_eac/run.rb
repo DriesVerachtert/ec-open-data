@@ -42,6 +42,19 @@ CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_cha
   end
 end
 
+homeCountryToPercentageOfMaleParticipants = Hash.new
+homeCountryToPercentageOfFemaleParticipants = Hash.new
+hostCountryToPercentageOfMaleParticipants = Hash.new
+hostCountryToPercentageOfFemaleParticipants = Hash.new
+homeCountryToNumberOfParticipants.keys.map {|c|
+  homeCountryToPercentageOfMaleParticipants[c] = homeCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / homeCountryToNumberOfParticipants[c]
+  homeCountryToPercentageOfFemaleParticipants[c] = homeCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / homeCountryToNumberOfParticipants[c]
+}
+hostCountryToNumberOfParticipants.keys.map {|c|
+  hostCountryToPercentageOfMaleParticipants[c] = hostCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / hostCountryToNumberOfParticipants[c]
+  hostCountryToPercentageOfFemaleParticipants[c] = hostCountryToNumberOfFemaleParticipants.fetch(c,0) * 100 / hostCountryToNumberOfParticipants[c]
+}
+
 def createOneToOneGraph(name, hash, keyname, valname, description, indexPage)
   tsvfilename = 'out/' + name + '.tsv'
   f = File.open(tsvfilename,'w')
