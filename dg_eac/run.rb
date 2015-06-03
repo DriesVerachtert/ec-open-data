@@ -48,7 +48,7 @@ hostCountryToPercentageOfMaleParticipants = Hash.new
 hostCountryToPercentageOfFemaleParticipants = Hash.new
 homeCountryToNumberOfParticipants.keys.map {|c|
   homeCountryToPercentageOfMaleParticipants[c] = homeCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / homeCountryToNumberOfParticipants[c]
-  homeCountryToPercentageOfFemaleParticipants[c] = homeCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / homeCountryToNumberOfParticipants[c]
+  homeCountryToPercentageOfFemaleParticipants[c] = homeCountryToNumberOfFemaleParticipants.fetch(c,0) * 100 / homeCountryToNumberOfParticipants[c]
 }
 hostCountryToNumberOfParticipants.keys.map {|c|
   hostCountryToPercentageOfMaleParticipants[c] = hostCountryToNumberOfMaleParticipants.fetch(c,0) * 100 / hostCountryToNumberOfParticipants[c]
@@ -88,6 +88,10 @@ createOneToOneGraph('homeCountryToNumberOfMaleParticipants', homeCountryToNumber
 createOneToOneGraph('homeCountryToNumberOfFemaleParticipants', homeCountryToNumberOfFemaleParticipants, 'country', 'participants', 'Number of female participants per home country', indexPage)
 createOneToOneGraph('hostCountryToNumberOfMaleParticipants', hostCountryToNumberOfMaleParticipants, 'country', 'participants', 'Number of male participants per host country', indexPage)
 createOneToOneGraph('hostCountryToNumberOfFemaleParticipants', hostCountryToNumberOfFemaleParticipants, 'country', 'participants', 'Number of female participants per host country', indexPage)
+createOneToOneGraph('homeCountryToPercentageOfMaleParticipants', homeCountryToPercentageOfMaleParticipants, 'country', 'percentage', 'Percentage of male participants per home country', indexPage)
+createOneToOneGraph('homeCountryToPercentageOfFemaleParticipants', homeCountryToPercentageOfFemaleParticipants, 'country', 'percentage', 'Percentage of female participants per home country', indexPage)
+createOneToOneGraph('hostCountryToPercentageOfMaleParticipants', hostCountryToPercentageOfMaleParticipants, 'country', 'percentage', 'Percentage of male participants per host country', indexPage)
+createOneToOneGraph('hostCountryToPercentageOfFemaleParticipants', hostCountryToPercentageOfFemaleParticipants, 'country', 'percentage', 'Percentage of female participants per host country', indexPage)
 
 s = IO.read('html/indexPageTemplate.html')
 s = s.gsub('__CONTENTS__', indexPage.string)
