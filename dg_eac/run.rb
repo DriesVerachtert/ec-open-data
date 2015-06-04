@@ -20,11 +20,13 @@ CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_cha
   if hostC == '???' then # staff (i think) doesn't have a host institution and country
     hostC = row[14] # take the country of the enterprise
     if hostC == nil then # 3 lines with bad data
-      hostC = '???'
+      hostC = '??'
     end
   end
+  hostC = hostC[0..1] # BEDE => BE
   # homeC = home country
   homeC = row[3]
+  homeC = homeC[0..1] # BEDE => BE
   gender = row[5]
   age = row[6]
   
