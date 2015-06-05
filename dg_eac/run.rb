@@ -13,6 +13,9 @@ homeCountryToNumberOfMaleParticipants = Hash.new
 homeCountryToNumberOfFemaleParticipants = Hash.new
 hostCountryToNumberOfMaleParticipants = Hash.new
 hostCountryToNumberOfFemaleParticipants = Hash.new
+homeCountryToArrayOfStudentAge = Hash.new
+hostCountryToArrayOfStudentAge = Hash.new
+
 
 CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_char => '"', :col_sep => ';') do |row|
   # hostC = host country
@@ -29,6 +32,8 @@ CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_cha
   homeC = homeC[0..1] # BEDE => BE
   gender = row[5]
   age = row[6]
+  homeCountryToArrayOfStudentAge[homeC] = homeCountryToArrayOfStudentAge.fetch(homeC,Array.new).push(age)
+  hostCountryToArrayOfStudentAge[hostC] = hostCountryToArrayOfStudentAge.fetch(hostC,Array.new).push(age)
   
   homeCountryToNumberOfParticipants[homeC] = homeCountryToNumberOfParticipants.fetch(homeC,0) + 1
   hostCountryToNumberOfParticipants[hostC] = hostCountryToNumberOfParticipants.fetch(hostC,0) + 1
