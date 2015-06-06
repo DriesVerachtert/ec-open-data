@@ -13,4 +13,4 @@ of [HTML](http://en.wikipedia.org/wiki/HTML) and
 At the moment it's only based on open data of the [Directorate General for
 Education and Culture (DG EAC)](http://ec.europa.eu/dgs/education_culture/index_en.htm)
 
-**[View some generated graphs](dg_eac/out/index.html)**
+**[View some generated graphs](https://cdn.rawgit.com/DriesVerachtert/ec-open-data/e0b32df163b235fb3b5be4d4e988a031c94b4981/dg_eac/out/index.html)**
