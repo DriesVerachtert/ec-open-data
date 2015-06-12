@@ -71,7 +71,11 @@ def createOneToOneGraph(name, hash, keyname, valname, description, indexPage)
   f = File.open(jsonfilename,'w')
   f << hash.to_json
   f.close
-  s = IO.read('html/oneToOneTemplate2.html')
+  templateFileName = 'html/oneToOneTemplate-only-pos-values.html'
+  if hash.values.min < 0 then
+    templateFileName = 'html/oneToOneTemplate-with-neg-values.html'
+  end
+  s = IO.read(templateFileName)
   s = s.gsub('__YAXIS__',valname).gsub('__XAXIS__',keyname).gsub('__DESCRIPTION__',description).gsub('__TSVFILENAME__',name + '.tsv')
   f = File.open('out/' + name + '.html','w')
   f << s

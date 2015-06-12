@@ -71,14 +71,14 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("homeCountryToPercentageOfFemaleParticipants.tsv", function(error, data) {
+d3.tsv("__TSVFILENAME__", function(error, data) {
 
   data.forEach(function(d) {
-    d.percentage = +d.percentage;
+    d.__YAXIS__ = +d.__YAXIS__;
   });
 
-  x.domain(data.map(function(d) { return d.country; }));
-  y.domain([d3.min(data,function(d) { return d.percentage; }), d3.max(data, function(d) { return d.percentage; })]);
+  x.domain(data.map(function(d) { return d.__XAXIS__; }));
+  y.domain([d3.min(data,function(d) { return d.__YAXIS__; }), d3.max(data, function(d) { return d.__YAXIS__; })]);
 
   svg.append("g")
       .attr("class", "x axis")
@@ -93,16 +93,16 @@ d3.tsv("homeCountryToPercentageOfFemaleParticipants.tsv", function(error, data) 
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Percentage of female participants per home country");
+      .text("__DESCRIPTION__");
 
   svg.selectAll(".bar")
       .data(data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.country); })
+      .attr("x", function(d) { return x(d.__XAXIS__); })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.percentage); })
-      .attr("height", function(d) { return height - y(d.percentage); });
+      .attr("y", function(d) { return y(d.__YAXIS__); })
+      .attr("height", function(d) { return height - y(d.__YAXIS__); });
 
   d3.select("input").on("change", change);
 
@@ -115,20 +115,20 @@ d3.tsv("homeCountryToPercentageOfFemaleParticipants.tsv", function(error, data) 
 
     // Copy-on-write since tweens are evaluated after a delay.
     var x0 = x.domain(data.sort(this.checked
-        ? function(a, b) { return b.percentage - a.percentage; }
-        : function(a, b) { return d3.ascending(a.country, b.country); })
-        .map(function(d) { return d.country; }))
+        ? function(a, b) { return b.__YAXIS__ - a.__YAXIS__; }
+        : function(a, b) { return d3.ascending(a.__XAXIS__, b.__XAXIS__); })
+        .map(function(d) { return d.__XAXIS__; }))
         .copy();
 
     svg.selectAll(".bar")
-        .sort(function(a, b) { return x0(a.country) - x0(b.country); });
+        .sort(function(a, b) { return x0(a.__XAXIS__) - x0(b.__XAXIS__); });
 
     var transition = svg.transition().duration(750),
         delay = function(d, i) { return i * 50; };
 
     transition.selectAll(".bar")
         .delay(delay)
-        .attr("x", function(d) { return x0(d.country); });
+        .attr("x", function(d) { return x0(d.__XAXIS__); });
 
     transition.select(".x.axis")
         .call(xAxis)

@@ -101,8 +101,8 @@ d3.tsv("hostCountryToNumberOfFemaleParticipants.tsv", function(error, data) {
       .attr("class", "bar")
       .attr("x", function(d) { return x(d.country); })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { if (d.participants > 0) { return y(d.participants); } else { return y(0); }})
-      .attr("height", function(d) { if (d.participants > 0) { return y(0) - y(d.participants); } else { return y(d.participants) - y(0); } });
+      .attr("y", function(d) { return y(d.participants); })
+      .attr("height", function(d) { return height - y(d.participants); });
 
   d3.select("input").on("change", change);
 
