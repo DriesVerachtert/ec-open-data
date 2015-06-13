@@ -6,6 +6,7 @@ require 'json'
 #studmobcsv = 'input/SM_2012_13_20141103_01.partial.csv' # partial input for quick testing
 studmobcsv = 'input/SM_2012_13_20141103_01.csv'
 
+allCountries = Hash.new
 homeCountryToNumberOfParticipants = Hash.new
 hostCountryToNumberOfParticipants = Hash.new
 countryToHomeToHostRatio = Hash.new
@@ -32,6 +33,8 @@ CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_cha
   homeC = homeC[0..1] # BEDE => BE
   gender = row[5]
   age = row[6]
+  allCountries[homeC] = 1
+  allCountries[hostC] = 1
   homeCountryToArrayOfStudentAge[homeC] = homeCountryToArrayOfStudentAge.fetch(homeC,Array.new).push(age)
   hostCountryToArrayOfStudentAge[hostC] = hostCountryToArrayOfStudentAge.fetch(hostC,Array.new).push(age)
   
@@ -62,6 +65,34 @@ hostCountryToNumberOfParticipants.keys.map {|c|
   hostCountryToPercentageOfFemaleParticipants[c] = hostCountryToNumberOfFemaleParticipants.fetch(c,0) * 100 / hostCountryToNumberOfParticipants[c]
 }
 
+
+homeCountryToGenderHash = Hash.new
+hostCountryToGenderHash = Hash.new
+allCountries.keys.sort.each{ |c|
+  genderHash = Hash.new
+  genderHash['Male'] = homeCountryToNumberOfMaleParticipants.fetch(c,0)
+  genderHash['Female'] = homeCountryToNumberOfFemaleParticipants.fetch(c,0)
+  homeCountryToGenderHash[c] = genderHash
+  genderHash = Hash.new
+  genderHash['Male'] = hostCountryToNumberOfMaleParticipants.fetch(c,0)
+  genderHash['Female'] = hostCountryToNumberOfFemaleParticipants.fetch(c,0)
+  hostCountryToGenderHash[c] = genderHash
+}
+
+def writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
+  s = IO.read(templateFileName)
+  s = s.gsub('__YAXIS__',valname).gsub('__XAXIS__',keyname).gsub('__DESCRIPTION__',description).gsub('__TSVFILENAME__',name + '.tsv')
+  f = File.open('out/' + name + '.html','w')
+  f << s
+  f.close
+  indexPage << '<h2>' + description + '</h2>'
+  indexPage << '<h3>Raw data</h3>'
+  indexPage << '<ul><li><a href="' + name + '.tsv">' + name + '.tsv</a></li>'
+  indexPage << '<li><a href="' + name + '.json">' + name + '.json</a></li></ul>'
+  indexPage << '<h3>Graph</h3>'
+  indexPage << '<iframe width="1150" height="650" src="' + name + '.html"></iframe>'
+end
+
 def createOneToOneGraph(name, hash, keyname, valname, description, indexPage)
   tsvfilename = 'out/' + name + '.tsv'
   f = File.open(tsvfilename,'w')
@@ -75,17 +106,19 @@ def createOneToOneGraph(name, hash, keyname, valname, description, indexPage)
   if hash.values.min < 0 then
     templateFileName = 'html/oneToOneTemplate-with-neg-values.html'
   end
-  s = IO.read(templateFileName)
-  s = s.gsub('__YAXIS__',valname).gsub('__XAXIS__',keyname).gsub('__DESCRIPTION__',description).gsub('__TSVFILENAME__',name + '.tsv')
-  f = File.open('out/' + name + '.html','w')
-  f << s
+  writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
+end
+
+def createGroupedBarsGraph(name, hash, keyname, valname, description, indexPage)
+  tsvfilename = 'out/' + name + '.tsv'
+  f = File.open(tsvfilename, 'w')
+  keyNames = hash.values[0].keys
+  f << keyname + "\t" + keyNames.join("\t") + "\n"
+  f << hash.keys.sort.map { |c| c + "\t" + keyNames.map { |k| hash[c][k].to_s }.join("\t") }.join("\n")
   f.close
-  indexPage << '<h2>' + description + '</h2>'
-  indexPage << '<h3>Raw data</h3>'
-  indexPage << '<ul><li><a href="' + name + '.tsv">' + name + '.tsv</a></li>'
-  indexPage << '<li><a href="' + name + '.json">' + name + '.json</a></li></ul>'
-  indexPage << '<h3>Graph</h3>'
-  indexPage << '<iframe width="1150" height="650" src="' + name + '.html"></iframe>'
+  # TODO write json file
+  templateFileName = 'html/groupedBarTemplate-only-pos-values.html'
+  writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
 end
 
 indexPage = StringIO.new
@@ -103,6 +136,9 @@ createOneToOneGraph('homeCountryToPercentageOfMaleParticipants', homeCountryToPe
 createOneToOneGraph('homeCountryToPercentageOfFemaleParticipants', homeCountryToPercentageOfFemaleParticipants, 'country', 'percentage', 'Percentage of female participants per home country', indexPage)
 createOneToOneGraph('hostCountryToPercentageOfMaleParticipants', hostCountryToPercentageOfMaleParticipants, 'country', 'percentage', 'Percentage of male participants per host country', indexPage)
 createOneToOneGraph('hostCountryToPercentageOfFemaleParticipants', hostCountryToPercentageOfFemaleParticipants, 'country', 'percentage', 'Percentage of female participants per host country', indexPage)
+createGroupedBarsGraph('homeCountryToGenderHash',homeCountryToGenderHash,'country','participants','Number of male and female particpants per home country', indexPage)
+createGroupedBarsGraph('hostCountryToGenderHash',hostCountryToGenderHash,'country','participants','Number of male and female particpants per host country', indexPage)
+
 
 s = IO.read('html/indexPageTemplate.html')
 s = s.gsub('__CONTENTS__', indexPage.string)
