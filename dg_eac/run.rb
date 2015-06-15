@@ -32,7 +32,7 @@ CSV.foreach(studmobcsv, :headers => true , :encoding => 'ISO-8859-1', :quote_cha
   homeC = row[3]
   homeC = homeC[0..1] # BEDE => BE
   gender = row[5]
-  age = row[6]
+  age = row[4]
   allCountries[homeC] = 1
   allCountries[hostC] = 1
   homeCountryToArrayOfStudentAge[homeC] = homeCountryToArrayOfStudentAge.fetch(homeC,Array.new).push(age)
@@ -73,10 +73,11 @@ allCountries.keys.sort.each{ |c|
   genderHash['Male'] = homeCountryToNumberOfMaleParticipants.fetch(c,0)
   genderHash['Female'] = homeCountryToNumberOfFemaleParticipants.fetch(c,0)
   homeCountryToGenderHash[c] = genderHash
+
   genderHash = Hash.new
   genderHash['Male'] = hostCountryToNumberOfMaleParticipants.fetch(c,0)
   genderHash['Female'] = hostCountryToNumberOfFemaleParticipants.fetch(c,0)
-  hostCountryToGenderHash[c] = genderHash
+  hostCountryToGenderHash[c] = genderHash  
 }
 
 def writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
@@ -121,6 +122,24 @@ def createGroupedBarsGraph(name, hash, keyname, valname, description, indexPage)
   writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
 end
 
+
+
+def createBoxPlotGraph(name, hash, keyname, valname, description, indexPage)
+  tsvfilename = 'out/' + name + '.tsv'
+  f = File.open(tsvfilename, 'w')
+  f << keyname + "\tmin\tlowerq\tmedian\tupperq\tmax\n"
+  f << hash.keys.sort.map { |c|
+    a = hash[c].sort
+    medIndex = (a.length/2).floor
+    lowerqIndex = (medIndex/2).floor
+    upperqIndex = ((a.length-medIndex)/2).floor+medIndex
+    print "l:" + a.length.to_s + ",med:" + medIndex.to_s + ",lowerq:" + lowerqIndex.to_s + ",upperq:" + upperqIndex.to_s + "\n"
+    c + "\t" + a.min.to_s + "\t" + a[lowerqIndex].to_s + "\t" + a[medIndex].to_s + "\t" + a[upperqIndex].to_s + "\t" + a.max }.join("\n")
+  f.close
+  #templateFileName = 'html/boxPlotTemplate.html'
+  #writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
+end
+
 indexPage = StringIO.new
 indexPage << '<h1>Erasmus student mobility (study exchanges and work placements in 2012-13)</h1>'
 indexPage << 'Based on <a href="http://open-data.europa.eu/data/dataset/erasmus-mobility-statistics-2012-13">the raw data of Erasmus student mobility (study exchanges and work placements in 2012-13)</a>'
@@ -138,6 +157,8 @@ createOneToOneGraph('hostCountryToPercentageOfMaleParticipants', hostCountryToPe
 createOneToOneGraph('hostCountryToPercentageOfFemaleParticipants', hostCountryToPercentageOfFemaleParticipants, 'country', 'percentage', 'Percentage of female participants per host country', indexPage)
 createGroupedBarsGraph('homeCountryToGenderHash',homeCountryToGenderHash,'country','participants','Number of male and female particpants per home country', indexPage)
 createGroupedBarsGraph('hostCountryToGenderHash',hostCountryToGenderHash,'country','participants','Number of male and female particpants per host country', indexPage)
+createBoxPlotGraph('homeCountryToArrayOfStudentAge', homeCountryToArrayOfStudentAge, 'country', 'participants', 'Age of participants per home country', indexPage)
+createBoxPlotGraph('hostCountryToArrayOfStudentAge', hostCountryToArrayOfStudentAge, 'country', 'participants', 'Age of participants per host country', indexPage)
 
 
 s = IO.read('html/indexPageTemplate.html')
