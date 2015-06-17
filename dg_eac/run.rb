@@ -133,11 +133,10 @@ def createBoxPlotGraph(name, hash, keyname, valname, description, indexPage)
     medIndex = (a.length/2).floor
     lowerqIndex = (medIndex/2).floor
     upperqIndex = ((a.length-medIndex)/2).floor+medIndex
-    print "l:" + a.length.to_s + ",med:" + medIndex.to_s + ",lowerq:" + lowerqIndex.to_s + ",upperq:" + upperqIndex.to_s + "\n"
     c + "\t" + a.min.to_s + "\t" + a[lowerqIndex].to_s + "\t" + a[medIndex].to_s + "\t" + a[upperqIndex].to_s + "\t" + a.max }.join("\n")
   f.close
-  #templateFileName = 'html/boxPlotTemplate.html'
-  #writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
+  templateFileName = 'html/boxPlotTemplate.html'
+  writeHtmlForGraph(templateFileName, name, keyname, valname, description, indexPage)
 end
 
 indexPage = StringIO.new
